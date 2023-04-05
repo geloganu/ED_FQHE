@@ -14,8 +14,8 @@ if [ "$1" == "-h" ]; then
   echo "    -w   wf:   (str) L: Laughlin, MR-Pf: Moore-Read Pf, aPf: anti-Pf, PH-Pf: PH conjugation"
   echo "==================================================================="
   echo "EXAMPLE:"
-  echo "    *Create trial pseudopotential file names 'Nphi21_pp.txt' wit the following contents: 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" 
-  echo "    *To diagonalize the Laughlin state for Ne=8 electrons: PATH/TO/RunFQHE.sh -e 8 -p 21 -n 0 -m 3 -w L"
+  echo "    *Create trial pseudopotential file names 'Nphi15_pp.txt' wit the following contents: 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0" 
+  echo "    *To diagonalize the Laughlin state for Ne=8 electrons: PATH/TO/FQHE_EigenstateOverlap.sh -e 6 -p 15 -n 0 -m 3 -w L"
   echo " "
   exit 0
 fi
@@ -42,14 +42,27 @@ do
 done
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SECONDS=0
 
-#exact diagonalize exact wavefunction
-python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C
-python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_C.npy --type Coulomb 
+#generate interaction matrix
+echo "GENERATING COULOMB AND TRIAL INTERACTION MATRIX"
 
-#exact diagonalize trial wavefunction
-python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction T --input Nphi${Nphi}_pp.txt
-python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_T.npy --type Trial
+python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C &
+python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction T --input Nphi${Nphi}_pp.txt >/dev/null &
 
+echo "**Running scripts in parallel**"
+wait
+echo " "
+#generate Hamiltonian and diagonalize for energy eigenstates
+echo -e "GENERATING COULOMB AND TRIAL HAMILTONIAN\n"
+python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_C.npy --type Coulomb &
+python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_T.npy --type Trial >/dev/null &
+
+echo "**Running scripts in parallel**"
+wait
+echo " "
 #yield overlap
 python $SCRIPT_DIR/gs_overlap.py --vec1 ${wf}${Ne}_Coulomb_eigenstates.npy --vec2 ${wf}${Ne}_Trial_eigenstates.npy
+
+echo " "
+echo $SECONDS 'SECONDS'

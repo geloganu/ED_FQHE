@@ -9,7 +9,7 @@ if [ "$1" == "-h" ]; then
   echo "                     Vm value followed by the value of Vm. Repeat for other custom values"
   echo "==================================================================="
   echo "EXAMPLE:"
-  echo "    *For the Laughlin state with Nphi=15, use: ../modules/FQHE_TrialPseudopotential.sh -p 15 -v 0 1 1 1" 
+  echo "    *For the Laughlin state with Nphi=15, use: ../modules/FQHE_TrialPseudopotential.sh -p 15 -v 0:1:1:1" 
   echo "This generates 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0."
   echo ""
   exit 0
@@ -29,6 +29,9 @@ do
 done
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SECONDS
 
 #exact diagonalize exact wavefunction
 python $SCRIPT_DIR/trial_pp.py --Nphi ${Nphi} --Vm ${Vm}
+
+echo $SECONDS

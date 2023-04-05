@@ -20,7 +20,7 @@ PATH/TO/modules/FQHE_TrialPseudopotential.sh -p 15 -v 0:2:1:1
 Where --Vm takes multiples of 2 inputs, each divided by the delimiter ':'. The first value is the position of the custom Vm value followed by the value of Vm. The above code generates the pseudopotentials Vm= 2 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0. Then, running the below script will calculate the overlap.
 
 ```
-PATH/TO/modules/FQHE_WaveFunctionOverlap.sh -e 6 -p 15 -n 0 -m 3 -w L
+PATH/TO/modules/FQHE_EigenstateOverlap.sh -e 6 -p 15 -n 0 -m 3 -w L
 ```
 
 ## References
