@@ -1,5 +1,5 @@
 # Exact-Diagonalization-FQHE
-This is a Python script for simulating the fractional quantum Hall effect (FQHE) in spherical geometry using exact diagonalziation techniques.
+This is a Python script for simulating the fractional quantum Hall effect (FQHE) in spherical geometry using exact diagonalziation techniques, created in part for my thesis.
 
 The script uses the analytic form of pair pseudopotentials as derived by Elizabeth Wooten to build the Coulomb interaction Hamiltonian for the FQHE states. The program also allows for user defined pseudopotential values to generate the zero-energy unqiue state to calculate the overlap of trial waverfunction eigenstates with the Coulomb Hamiltonian eigenstates.
 
