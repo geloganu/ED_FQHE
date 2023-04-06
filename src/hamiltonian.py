@@ -159,6 +159,47 @@ class system:
         print('completed in',time.time()-st,'seconds')
         return L2
         
+    def entanglement_spectrum(self,groundstate, subsystemA, NA, LzAvec):
+        groundstate = groundstate/LA.norm(groundstate)
+        dim=len(groundstate)
+
+        IAlist = np.zeros(groundstate.shape[0], dtype=int)
+        NAlist = np.zeros(groundstate.shape[0], dtype=int)
+        LzAlist = np.zeros(groundstate.shape[0], dtype=float)
+        mzA = self.mzvals[subsystemA]
+
+        for i in range(0,dim):
+            nsA = self.occ_orbitals_nlist[i][subsystemA]
+            IAlist[i] = I(nsA)
+            NAlist[i] = np.sum(nsA)
+            LzAlist[i] = np.dot(mzA, nsA)
+        
+        print(f"Calculating entanglement spectrum for NA = {NA}, LzA = {LzAvec} ...")
+
+        ent_spectrum = np.zeros((0, 2), dtype=float)
+
+        for LzA in LzAvec:
+            strip_inds = np.intersect1d(np.where(NAlist == NA), np.where(LzAlist == LzA))
+            IAlist_stripped = IAlist[strip_inds]
+            sort_inds = np.argsort(IAlist_stripped)
+            IAlist_stripped = IAlist_stripped[sort_inds]
+
+            groundstate_stripped = groundstate[strip_inds][sort_inds]
+
+            nc = np.sum(IAlist_stripped == IAlist_stripped[0])
+            nr = int(groundstate_stripped.shape[0] / nc)
+            groundstate_matrix = groundstate_stripped.reshape((nr, nc)).T
+
+            rhoA = np.dot(groundstate_matrix, groundstate_matrix.T)
+            evals = LA.eigvals(rhoA)
+            xi = -np.log(evals[np.where(evals > 0)])
+
+            ent_spectrum = np.vstack((ent_spectrum, np.hstack((np.full((len(xi), 1), LzA), np.sort(xi).reshape(-1, 1)))))
+        return ent_spectrum
+
+
+
+        
 
 class spherical_system:
     def __init__(self, system, pp_matrix):
@@ -220,5 +261,3 @@ class spherical_system:
         print('completed in',time.time()-st,'seconds')
         print('')
         return hamiltonian
-
-
