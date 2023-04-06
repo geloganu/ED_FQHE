@@ -4,6 +4,10 @@ This is a Python script for simulating the fractional quantum Hall effect (FQHE)
 The script uses the analytic form of pair pseudopotentials as derived by Elizabeth Wooten to build the Coulomb interaction Hamiltonian for the FQHE states. The program also allows for user defined pseudopotential values to generate the zero-energy unqiue state to calculate the overlap of trial waverfunction eigenstates with the Coulomb Hamiltonian eigenstates.
 
 
+![Energetics for the 8 electron v=1/3 state.](./notebook_laughlin/vis/full_energectics_n8_nphi_21.png)
+![Energetics for the 8 electron v=1/3 state (zoomed in).](notebook_laughlin/vis/energectics_n8_nphi_21.png)
+
+
 ## Example Usages
 In terminal, working in the directory of the program folder. Example of generating the energy spectrum (organized by angular momentum L) for 6 electrons in the v=1/3 state in the 0th Landau level (Nphi=15 flux quanta):
 
