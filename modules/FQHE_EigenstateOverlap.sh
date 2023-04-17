@@ -45,17 +45,24 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SECONDS=0
 
 #generate interaction matrix
-echo "GENERATING COULOMB AND TRIAL INTERACTION MATRIX"
 
-python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C &
-python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction T --input Nphi${Nphi}_pp.txt >/dev/null &
 
-echo "**Running scripts in parallel**"
-wait
-echo " "
+if [ ! -f Nphi${Nphi}_C.npy ] && [ ! -f Nphi${Nphi}_T.npy ]
+then
+  echo "GENERATING COULOMB AND TRIAL INTERACTION MATRIX"
+  python3 $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C &
+  python3 $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction T --input Nphi${Nphi}_pp.txt >/dev/null &
+  echo "**Running scripts in parallel**"
+  wait
+  echo " "
+else 
+  echo "INTERACTION MATRIX FILE FOUND. USING EXISTING FILE"
+  echo ""
+fi
+
 #generate Hamiltonian and diagonalize for energy eigenstates
 echo -e "GENERATING COULOMB AND TRIAL HAMILTONIAN\n"
-python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_C.npy --type Coulomb &
+python3 $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_C.npy --type Coulomb &
 python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_T.npy --type Trial >/dev/null &
 
 echo "**Running scripts in parallel**"
