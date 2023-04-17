@@ -32,6 +32,6 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SECONDS
 
 #exact diagonalize exact wavefunction
-python $SCRIPT_DIR/trial_pp.py --Nphi ${Nphi} --Vm ${Vm}
+python3 $SCRIPT_DIR/trial_pp.py --Nphi ${Nphi} --Vm ${Vm}
 
 echo $SECONDS

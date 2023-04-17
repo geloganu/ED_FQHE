@@ -41,8 +41,15 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SECONDS=0
 
 #exact diagonalize exact wavefunction
-python $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C
-python $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_C.npy --type Coulomb --getL2 True --getHamil True
-python $SCRIPT_DIR/basis_L2.py --label ${wf}${Ne} --H ${wf}${Ne}_Coulomb_Hamil.npy --L2 ${wf}${Ne}_Coulomb_L2.npy
+if [ ! -f Nphi${Nphi}_C.npy ]
+then
+  python3 $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C
+else 
+  echo "INTERACTION MATRIX FILE FOUND. USING EXISTING FILE"
+  echo ""
+fi
+python3 $SCRIPT_DIR/pseudopotential_matrix.py --Nphi ${Nphi} --nLL ${nLL} --interaction C
+python3 $SCRIPT_DIR/fqhe_ed.py --Ne ${Ne} --m ${m} --wf ${wf} --ppm Nphi${Nphi}_C.npy --type Coulomb --getL2 True --getHamil True
+python3 $SCRIPT_DIR/basis_L2.py --label ${wf}${Ne} --H ${wf}${Ne}_Coulomb_Hamil.npy --L2 ${wf}${Ne}_Coulomb_L2.npy
 
 echo $SECONDS
