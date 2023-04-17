@@ -1,3 +1,4 @@
+
 import time
 import math
 import numpy as np
@@ -55,7 +56,6 @@ class haldane_pseudopotential:
         self.V = np.zeros(len(L))
 
         Vk = np.full(int(2*l)+1,1/np.sqrt(l)) #radius=sqrt(self.l)
-        
 
         #two body interaction value
         for i in range(0,len(L)):
@@ -66,14 +66,13 @@ class haldane_pseudopotential:
                 vk += Vk[k] * wigner_6j(L[i], l, l, k, l, l) * wigner_3j(l, k ,l, -Q, 0, Q)**2
             
             self.V[i] = vk * (-1)**(2*Q + L[i]) * (2*l + 1)**2
-        
+        aq
 
         self.V = self.V[np.argsort(self.m)]
 
         print('completed in',time.time()-st,'seconds')
         print('pseudopotential:',self.V)
         print('')
-
 
     def pp_matrix_generator(self,pp):
         
@@ -83,6 +82,7 @@ class haldane_pseudopotential:
         Norb = len(pp)
         pp_matrix = np.empty((Norb, Norb, Norb, Norb))
         st=time.time()
+
         for x1 in range(0,Norb):
 
             if x1 == 0 or x1%np.ceil(0.05*Norb)==0:
@@ -97,8 +97,6 @@ class haldane_pseudopotential:
                             for Mz in range(-int(l),int(l+1)):
                                 V += cg_table[x1, x2, l][int(Mz + l)]*pp[int(-1-l)]*np.conj(cg_table[x3, x4, l][int(Mz + l)])
 
-                                
-                        
                         pp_matrix[x1, x2, x3, x4] = V
         
         print('completed in ',time.time()-st,'seconds')      

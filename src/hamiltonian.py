@@ -7,7 +7,6 @@ from scipy.sparse import diags
 from misc import *
 from haldane_pseudopotential import *
 
-
 class system:
     def __init__(self, N, Nphi, Lz, L2=False):
         """
@@ -95,7 +94,7 @@ class system:
         print('========Constructing total angular momentum matrix========')
         print(' ')
         st=time.time()
-
+ 
         for j in range(0,len(self.occ_orbitals)):
             ns = self.occ_orbitals_nlist[j]
 
@@ -198,9 +197,6 @@ class system:
         return ent_spectrum
 
 
-
-        
-
 class spherical_system:
     def __init__(self, system, pp_matrix):
         self.Norb = system.Norb
@@ -227,35 +223,38 @@ class spherical_system:
                 print("Working on interaction matrix:",hcol/self.sys_dim*100,'%')
 
             ns = self.nlist[hcol]
-        
-            for x2 in range(0, dim):
-                for x1 in range(0, x2):
-                    for x3 in range(0, dim):
-                        for x4 in range(0, x3):
-                            if x1 + x2 == x3+ x4:
-                                if ns[x3] == 1 and ns[x4] == 1:
-                                    ns_new = ns.copy()
-                                    ns_new[x3] = 0
-                                    ns_new[x4] = 0
-                                    if ns_new[x1] == 0 and ns_new[x2] == 0:
-                                        V1234 = self.pp_matrix[x1, x2, x3, x4]
-                                        V1243 = self.pp_matrix[x1, x2, x4, x3]
-                                        V2134 = self.pp_matrix[x2, x1, x3, x4]
-                                        V2143 = self.pp_matrix[x2, x1, x4, x3]
-                                        val = V1234 - V1243 - V2134 + V2143
-                                        if val != 0:
-                                            p1 = sum(ns_new[0:x1])
-                                            p2 = sum(ns_new[0:x2])
-                                            p3 = sum(ns[0:x3])
-                                            p4 = sum(ns[0:x4])
-                                            sgn = (-1)**(p1 + p2 + p3 + p4)
-                                            ns_new[x1] = 1
-                                            ns_new[x2] = 1
-                                            i = np.searchsorted(self.ilist, I(ns_new))
 
-                                            rows = np.append(rows, i)
-                                            cols = np.append(cols, hcol)
-                                            hvals = np.append(hvals, 0.5* sgn * val)
+            x = np.arange(dim)
+            x1, x2, x3, x4 = np.meshgrid(x, x, x, x)
+
+            # apply conditions on x1, x2, x3, x4 using boolean masking
+            mask = (x1 < x2) & (x3 < x4) & (x1 + x2 == x3 + x4)
+            xvals = np.column_stack((x1[mask], x2[mask], x3[mask], x4[mask]))
+            for row in xvals:
+                x1,x2,x4,x3 = row
+                if ns[x3] == 1 and ns[x4] == 1:
+                    ns_new = ns.copy()
+                    ns_new[x3] = 0
+                    ns_new[x4] = 0
+                    if ns_new[x1] == 0 and ns_new[x2] == 0:
+                        V1234 = self.pp_matrix[x1, x2, x3, x4]
+                        V1243 = self.pp_matrix[x1, x2, x4, x3]
+                        V2134 = self.pp_matrix[x2, x1, x3, x4]
+                        V2143 = self.pp_matrix[x2, x1, x4, x3]
+                        val = V1234 - V1243 - V2134 + V2143
+                        if val != 0:
+                            p1 = sum(ns_new[0:x1])
+                            p2 = sum(ns_new[0:x2])
+                            p3 = sum(ns[0:x3])
+                            p4 = sum(ns[0:x4])
+                            sgn = (-1)**(p1 + p2 + p3 + p4)
+                            ns_new[x1] = 1
+                            ns_new[x2] = 1
+                            i = np.searchsorted(self.ilist, I(ns_new))
+
+                            rows = np.append(rows, i)
+                            cols = np.append(cols, hcol)
+                            hvals = np.append(hvals, 0.5* sgn * val)
 
         hamiltonian = scipy.sparse.csc_matrix((hvals, (rows, cols)), (self.sys_dim,self.sys_dim))
         print('completed in',time.time()-st,'seconds')
