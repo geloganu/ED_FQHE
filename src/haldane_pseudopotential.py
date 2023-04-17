@@ -66,7 +66,6 @@ class haldane_pseudopotential:
                 vk += Vk[k] * wigner_6j(L[i], l, l, k, l, l) * wigner_3j(l, k ,l, -Q, 0, Q)**2
             
             self.V[i] = vk * (-1)**(2*Q + L[i]) * (2*l + 1)**2
-        aq
 
         self.V = self.V[np.argsort(self.m)]
 
