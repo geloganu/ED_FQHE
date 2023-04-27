@@ -159,7 +159,7 @@ class system:
         return L2
         
     def entanglement_spectrum(self,groundstate, subsystemA, NA, LzAvec):
-        groundstate = groundstate/LA.norm(groundstate)
+        groundstate /= LA.norm(groundstate)
         dim=len(groundstate)
 
         IAlist = np.zeros(groundstate.shape[0], dtype=int)
@@ -180,14 +180,14 @@ class system:
         for LzA in LzAvec:
             strip_inds = np.intersect1d(np.where(NAlist == NA), np.where(LzAlist == LzA))
             IAlist_stripped = IAlist[strip_inds]
-            sort_inds = np.argsort(IAlist_stripped)
+            sort_inds = np.argsort(IAlist_stripped,kind="mergesort")
             IAlist_stripped = IAlist_stripped[sort_inds]
 
             groundstate_stripped = groundstate[strip_inds][sort_inds]
 
             nc = np.sum(IAlist_stripped == IAlist_stripped[0])
             nr = int(groundstate_stripped.shape[0] / nc)
-            groundstate_matrix = groundstate_stripped.reshape((nr, nc)).T
+            groundstate_matrix = groundstate_stripped.reshape((nr, nc))
 
             rhoA = np.dot(groundstate_matrix, groundstate_matrix.T)
             evals = LA.eigvals(rhoA)
