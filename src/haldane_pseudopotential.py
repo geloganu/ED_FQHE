@@ -9,7 +9,7 @@ from misc import *
 from hamiltonian import *
 
 class haldane_pseudopotential:
-    def __init__(self, l, LLn, custom=None):
+    def __init__(self, l, LLn, width=0, custom=None, interaction=False):
         """
         args:
         l: angular momentum in the effective LLL problem == monopole strength Q in LLL
@@ -27,16 +27,21 @@ class haldane_pseudopotential:
         self.L=self.L[ind]
         self.m=self.m[ind]
         
-        if custom is None:
-            self.pseudopotential()
-            self.pp_matrix = self.pp_matrix_generator(self.V)
-        elif custom is not None:
-            if isinstance(custom,np.ndarray): custom=np.asarray(custom)
-            self.V_trial=custom
-            self.pp_matrix=self.pp_matrix_generator(self.V_trial)
+        self.width=width
+        
+        if interaction:
+            if custom is None:
+                self.pseudopotential(width=self.width)
+                self.pp_matrix = self.pp_matrix_generator(self.V)
+            elif custom is not None:
+                if isinstance(custom,np.ndarray): custom=np.asarray(custom)
+                self.V_trial=custom
+                self.pp_matrix=self.pp_matrix_generator(self.V_trial)
+        elif not interaction:
+            self.pseudopotential(width=self.width)
 
 
-    def pseudopotential(self):
+    def pseudopotential(self,width=0):
         """
         consts:
         L: total angular momentum on the sphere
@@ -47,7 +52,6 @@ class haldane_pseudopotential:
         #local attribute for performance
         l=self.l 
         L=self.L
-
         Q = l - self.LLn
         
         print('========Initializing two-body pseudopotential========')
@@ -55,8 +59,15 @@ class haldane_pseudopotential:
 
         self.V = np.zeros(len(L))
 
-        Vk = np.full(int(2*l)+1,1/np.sqrt(l)) #radius=sqrt(self.l)
-
+        if width == 0.0:
+            Vk = np.full(int(2*l)+1, 1/np.sqrt(l)) #radius=sqrt(self.l)
+        else:
+            #Vk = np.full(int(2*l)+1, 1/np.sqrt(l + width**2))
+            
+            Vk = np.full(int(2*l)+1, finite_width_vzds(np.sqrt(l),d=width))
+            #Vk=np.array([finite_width_vzds(np.sqrt(k),d=width) for k in range(1,int(2*l)+1)])
+            #Vk=np.insert(Vk,0,1)
+        
         #two body interaction value
         for i in range(0,len(L)):
             vk = 0
@@ -70,7 +81,7 @@ class haldane_pseudopotential:
         self.V = self.V[np.argsort(self.m)]
 
         print('completed in',time.time()-st,'seconds')
-        print('pseudopotential:',self.V)
+        print('pseudopotential:',self.V,' with finite width:',width)
         print('')
 
     def pp_matrix_generator(self,pp):
@@ -109,3 +120,5 @@ class haldane_pseudopotential:
         print('relative momenta:', self.m)
         print('pseudopotentials:', self.V)
         print("---------------------")
+        
+    

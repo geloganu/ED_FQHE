@@ -31,6 +31,17 @@ def Lminus(l, m):
 def LQN(matrix):
     return 1/2*(-1+np.sqrt(1+4*matrix))
 
+def finite_width_vzds(k,d):
+    numerator = np.exp(-k*d/2)
+    return numerator / k
+
+def finite_width_vsq(k,d):
+    
+    numerator=3*k*d + 8*np.pi**2/(k*d) - 32*np.pi**4*(1 - np.exp(-k*d))/((k*d)**2* ((k*d)**2 + 4*np.pi**2))
+    denominator = (k*d)**2 + 4*np.pi**2
+    
+    return numerator/(k*denominator)
+
 def cg_coeffs(j1, j2):
     """
     args:
